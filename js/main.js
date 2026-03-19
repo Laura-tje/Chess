@@ -37,9 +37,9 @@ export function onClick(square)
                 {
                     board.boardState[square[0]][square[1]] = selectedPiece;
                     board.boardState[selectedSquare[0]][selectedSquare[1]] = "";
+                    turn = rules.switchTurn(turn); //switch turn after move
                 }
                 board.updateBoard();
-                turn = rules.switchTurn(turn); //switch turn after move
                 document.getElementById('turn').textContent = turn === 1 ? 'Wit' : 'Zwart';
                 break;
             }

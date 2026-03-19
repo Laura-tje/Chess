@@ -8,27 +8,33 @@ export function calcValidMoves(piece, row, col)
     validMoves = [];
     validMoves.push([row, col]);
 
-    switch (piece)
+    switch (String(piece)[1])
     {
-        case "1p":
-            validWhitePawnMove(piece, row, col);
+        case "p":
+            //FIX SWITCH IN SWITCH, ITS UGGLY AF
+            switch (String(piece)[0])
+            {
+                case "1":
+                    validWhitePawnMove(piece, row, col);
+                    break;
+                case "0":
+                    validBlackPawnMove(piece, row, col);
+                    break;
+            }
             break;
-        case "0p":
-            validBlackPawnMove(piece, row, col);
-            break;
-        case "1r" || "0r":
+        case "r":
             validRookMove(piece, row, col);
             break;
-        case "1n" || "0n":
+        case "n":
             validKnightMove(piece, row, col);
             break;
-        case "1b" || "0b":
+        case "b":
             validBishopMove(piece, row, col);
             break;
-        case "1q" || "0q":
+        case "q":
             validQueenMove(piece, row, col);
             break;
-        case "1k" || "0k":
+        case "k":
             validKingMove(piece, row, col);
             break;
     }
@@ -50,7 +56,8 @@ function validWhitePawnMove(piece, row, col) //NOT DONE YET -- EN PASSANT, PROMO
         {
             validMoves.push([row - 1, col]);
             validMoves.push([row - 2, col]);
-        } else //not starting pos
+        } 
+        else //not starting pos
         {
             validMoves.push([row - 1, col]);
         }
@@ -80,7 +87,8 @@ function validBlackPawnMove(piece, row, col) //NOT DONE YET -- EN PASSANT, PROMO
         {
             validMoves.push([row + 1, col]);
             validMoves.push([row + 2, col]);
-        } else //not starting pos
+        } 
+        else //not starting pos
         {
             validMoves.push([row + 1, col]);
         }
@@ -98,4 +106,84 @@ function validBlackPawnMove(piece, row, col) //NOT DONE YET -- EN PASSANT, PROMO
     {
         validMoves.push([row + 1, col + 1]);
     }
+}
+
+function validRookMove(piece, row, col)
+{
+    //HORIZONTAL MOVEMENT -- LEFT
+    for (let i = col - 1; i >= 0; i--)
+    {
+        if (board.boardState[row][i] == "") //If empty
+        {
+            validMoves.push([row, i]);
+        } 
+        else if (String(board.boardState[row][i])[0] != String(piece)[0]) //If piece is of opposite color
+        {
+            validMoves.push([row, i]);
+            break;
+        } 
+        else
+        {
+            break;
+        }
+    }
+
+    //HORIZONTAL MOVEMENT -- RIGHT
+    for (let i = col + 1; i < 8; i++)
+    {
+        if (board.boardState[row][i] == "") //If empty
+        {
+            validMoves.push([row, i]);
+        } 
+        else if (String(board.boardState[row][i])[0] != String(piece)[0]) //If piece is of opposite color
+        {
+            validMoves.push([row, i]);
+            break;
+        } 
+        else
+        {
+            break;
+        }
+    }
+
+    //VERTICAL MOVEMENT -- UP
+    for (let i = row - 1; i >= 0; i--)
+    {
+        if (board.boardState[i][col] == "") //If empty  
+        {
+            validMoves.push([i, col]);
+        } 
+        else if (String(board.boardState[i][col])[0] != String(piece)[0]) //If piece is of opposite color
+        {
+            validMoves.push([i, col]);
+            break;
+        }
+        else
+        {
+            break;
+        }
+    }
+    
+    //VERTICAL MOVEMENT -- DOWN
+    for (let i = row + 1; i < 8; i++)
+    {
+        if (board.boardState[i][col] == "") //If empty  
+        {
+            validMoves.push([i, col]);
+        } 
+        else if (String(board.boardState[i][col])[0] != String(piece)[0]) //If piece is of opposite color
+        {
+            validMoves.push([i, col]);
+            break;
+        }
+        else
+        {
+            break;
+        }
+    }
+}
+
+function validKnightMove(piece, row, col)
+{
+    //TODO
 }

@@ -35,7 +35,8 @@ export function createBoard()
             if ((row + col) % 2 == 0) 
             {
                 cell.className = "cell light";
-            } else
+            } 
+            else
             {
                 cell.className = "cell dark";
             }
