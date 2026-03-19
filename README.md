@@ -1,1 +1,1 @@
-https://laura-tje.github.io/chess
+https://laura-tje.github.io/Chess
