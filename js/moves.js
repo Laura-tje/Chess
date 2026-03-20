@@ -185,5 +185,108 @@ function validRookMove(piece, row, col)
 
 function validKnightMove(piece, row, col)
 {
-    //TODO
+    //MOVEMENT UP -- LEFT
+    if (row - 2 >= 0 && col - 1 >= 0 && (board.boardState[row - 2][col - 1] == "" || String(board.boardState[row - 2][col - 1])[0] != String(piece)[0]))
+    {
+        validMoves.push([row - 2, col - 1]);
+    }
+
+    //MOVEMENT UP -- RIGHT\
+    if (row - 2 >= 0 && col + 1 < 8 && (board.boardState[row - 2][col + 1] == "" || String(board.boardState[row - 2][col + 1])[0] != String(piece)[0]))
+    {
+        validMoves.push([row - 2, col + 1]);
+    }
+
+    //MOVEMENT DOWN -- LEFT
+    if (row + 2 < 8 && col - 1 >= 0 && (board.boardState[row + 2][col - 1] == "" || String(board.boardState[row + 2][col - 1])[0] != String(piece)[0]))
+    {
+        validMoves.push([row + 2, col - 1]);
+    }
+
+    //MOVEMENT DOWN -- RIGHT
+    if (row + 2 < 8 && col + 1 < 8 && (board.boardState[row + 2][col + 1] == "" || String(board.boardState[row + 2][col + 1])[0] != String(piece)[0]))
+    {
+        validMoves.push([row + 2, col + 1]);
+    }
+
+    //MOVEMENT LEFT -- UP
+    if (row - 1 >= 0 && col - 2 >= 0 && (board.boardState[row - 1][col - 2] == "" || String(board.boardState[row - 1][col - 2])[0] != String(piece)[0]))
+    {
+        validMoves.push([row - 1, col - 2]);
+    }
+
+    //MOVEMENT LEFT -- DOWN
+    if (row + 1 < 8 && col - 2 >= 0 && (board.boardState[row + 1][col - 2] == "" || String(board.boardState[row + 1][col - 2])[0] != String(piece)[0]))
+    {
+        validMoves.push([row + 1, col - 2]);
+    }
+
+    //MOVEMENT RIGHT -- UP
+    if (row - 1 >= 0 && col + 2 < 8 && (board.boardState[row - 1][col + 2] == "" || String(board.boardState[row - 1][col + 2])[0] != String(piece)[0]))
+    {
+        validMoves.push([row - 1, col + 2]);
+    }
+
+    //MOVEMENT RIGHT -- DOWN
+    if (row + 1 < 8 && col + 2 < 8 && (board.boardState[row + 1][col + 2] == "" || String(board.boardState[row + 1][col + 2])[0] != String(piece)[0]))
+    {
+        validMoves.push([row + 1, col + 2]);
+    }
+}
+
+function validBishopMove(piece, row, col)
+{
+    //DIAGONAL MOVEMENT -- UP LEFT
+    for (let i = 1; row - i >= 0 && col - i >= 0; i++)
+    {
+        if (board.boardState[row - i][col - i] == "") //If empty
+        {
+            validMoves.push([row - i, col - i]);
+        } 
+        else if (String(board.boardState[row - i][col - i])[0] != String(piece)[0]) //If piece is of opposite color
+        {
+            validMoves.push([row - i, col - i]);
+            break;
+        }
+        else if (String(board.boardState[row - i][col - i])[0] == String(piece)[0]) //If piece is of same color
+        {
+            break;
+        }
+    }
+
+    //DIAGONAL MOVEMENT -- UP RIGHT
+    for (let i = 1; row - i >= 0 && col + i <= 7; i++)
+    {
+        if (board.boardState[row - i][col + i] == "") //If empty
+        {
+            validMoves.push([row - i, col + i]);
+        } 
+        else if (String(board.boardState[row - i][col + i])[0] != String(piece)[0]) //If piece is of opposite color
+        {
+            validMoves.push([row - i, col + i]);
+            break;
+        }
+        else if (String(board.boardState[row - i][col + i])[0] == String(piece)[0]) //If piece is of same color
+        {
+            break;
+        }
+    }
+
+    //DIAGONAL MOVEMENT -- DOWN LEFT
+    for (let i = 1; row + i <= 7 && col - i >= 0; i++)
+    {
+        if (board.boardState[row + i][col - i] == "") //If empty
+        {
+            validMoves.push([row + i, col - i]);
+        } 
+        else if (String(board.boardState[row + i][col - i])[0] != String(piece)[0]) //If piece is of opposite color
+        {
+            validMoves.push([row + i, col - i]);
+            break;
+        }
+        else if (String(board.boardState[row + i][col - i])[0] == String(piece)[0]) //If piece is of same color
+        {
+            break;
+        }
+    }
 }
