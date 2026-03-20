@@ -54,8 +54,14 @@ function validWhitePawnMove(piece, row, col) //NOT DONE YET -- EN PASSANT, PROMO
     {
         if (row == 6) //starting pos
         {
-            validMoves.push([row - 1, col]);
-            validMoves.push([row - 2, col]);
+            if (board.boardState[row - 1][col] == "") //Check if empty
+            {
+                validMoves.push([row - 1, col]);
+            }
+            if (board.boardState[row - 2][col] == "") //Check if empty
+            {
+                validMoves.push([row - 2, col]);
+            }
         } 
         else //not starting pos
         {
@@ -85,8 +91,14 @@ function validBlackPawnMove(piece, row, col) //NOT DONE YET -- EN PASSANT, PROMO
     {
         if (row == 1) //starting pos
         {
-            validMoves.push([row + 1, col]);
-            validMoves.push([row + 2, col]);
+            if (board.boardState[row + 1][col] == "") //Check if empty
+            {
+                validMoves.push([row + 1, col]);
+            }
+            if (board.boardState[row + 2][col] == "") //Check if empty
+            {
+                validMoves.push([row + 2, col]);
+            }
         } 
         else //not starting pos
         {
