@@ -289,4 +289,28 @@ function validBishopMove(piece, row, col)
             break;
         }
     }
+
+    //DIAGONAL MOVEMENT -- DOWN RIGHT
+    for (let i = 1; row + i <= 7 && col + i <= 7; i++)
+    {
+        if (board.boardState[row + i][col + i] == "") //If empty
+        {
+            validMoves.push([row + i, col + i]);
+        } 
+        else if (String(board.boardState[row + i][col + i])[0] != String(piece)[0]) //If piece is of opposite color
+        {
+            validMoves.push([row + i, col + i]);
+            break;
+        }
+        else if (String(board.boardState[row + i][col + i])[0] == String(piece)[0]) //If piece is of same color
+        {
+            break;
+        }
+    }
+}
+
+function validQueenMove(piece, row, col)
+{
+    validRookMove(piece, row, col);
+    validBishopMove(piece, row, col);
 }
