@@ -9,12 +9,14 @@ let selectedSquare = null;
 let selectedPiece = null;
 let validMoves = [];
 let turn = 1; //white starts
+let check = false;
 
 export function onClick(square)
 {   
     console.log(`Clicked on square: ${square}`);
     
-    if (selectedSquare == null && String(board.boardState[square[0]][square[1]])[0] == String(turn)) //select piece check for turn and show valid moves
+    // If clicking on your own piece, select it (or reselect if already have something selected)
+    if (String(board.boardState[square[0]][square[1]])[0] == String(turn))
     {
         selectedSquare = square;
         selectedPiece = board.boardState[square[0]][square[1]];
@@ -26,22 +28,29 @@ export function onClick(square)
     } 
     else if (selectedSquare != null)
     {
-        //!!!!!!!!!!!!!!!! CHECK FOR CHECK AND MATE HERE !!!!!!!!!!!!!!
         for (let move of validMoves)
         {
             if (move[0] == square[0] && move[1] == square[1])
             {
                 console.log("Move is valid");
-                //check hier of en welke piece geslagen wordt
-                if (board.boardState[square[0]][square[1]] != selectedPiece)
-                {
-                    board.boardState[square[0]][square[1]] = selectedPiece;
-                    board.boardState[selectedSquare[0]][selectedSquare[1]] = "";
-                    turn = rules.switchTurn(turn); //switch turn after move
-                }
+                board.boardState[square[0]][square[1]] = selectedPiece;
+                board.boardState[selectedSquare[0]][selectedSquare[1]] = "";
+                
+                turn = rules.switchTurn(turn); //switch turn after move ALWAYS
                 board.updateBoard();
                 document.getElementById('turn').textContent = turn === 1 ? 'Wit' : 'Zwart';
+                
+                //Check for check AFTER the move and turn switch
+                // Check if the NEW current player is in check
+                check = rules.checkForCheck(1 - turn);
+                if (check)
+                {
+                    console.log("King is in check!");
+                    //rules.checkForMate(turn);
+                    board.highlightCheck(rules.findKing(1 - turn));
+                }
                 break;
+
             }
             console.log("Move is invalid");
         }

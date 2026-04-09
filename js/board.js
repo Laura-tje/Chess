@@ -69,6 +69,23 @@ export function drawValidMoves(validMoves) //FIX THIS, NOT MY OWN CODE
     });
 }
 
+export function highlightCheck(kingPos)
+{
+    // Remove all existing check highlights first
+    document.querySelectorAll(".cell").forEach(cell => {
+        cell.classList.remove("check");
+    });
+    
+    // Highlight the king in check
+    if (kingPos) {
+        const cell = document.querySelector(`[data-row="${kingPos[0]}"][data-col="${kingPos[1]}"]`);
+        if (cell) {
+            cell.classList.add("check");
+        }
+    }
+}
+
+
 export function updateBoard()
 {
     const cells = document.querySelectorAll(".cell");

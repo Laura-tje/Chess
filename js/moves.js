@@ -82,6 +82,15 @@ function validWhitePawnMove(piece, row, col) //NOT DONE YET -- EN PASSANT, PROMO
     {
         validMoves.push([row - 1, col + 1]);
     }
+
+    //en passant
+    if (row == 3) //en passant can only happen on 4th rank
+    {
+        if (col - 1 >= 0 && board.boardState[row][col - 1] == "0p" && board.boardState[row + 1][col - 1] == "0p") //en passant left
+        {
+            validMoves.push([row - 1, col - 1]);
+        }   
+    }
 }
 
 function validBlackPawnMove(piece, row, col) //NOT DONE YET -- EN PASSANT, PROMOTE
@@ -117,6 +126,15 @@ function validBlackPawnMove(piece, row, col) //NOT DONE YET -- EN PASSANT, PROMO
     if (board.boardState[row + 1][col + 1] != "" && String(board.boardState[row + 1][col + 1])[0] == "1")
     {
         validMoves.push([row + 1, col + 1]);
+    }
+
+    //en passant
+    if (row == 4) //en passant can only happen on 5th rank
+    {
+        if (col - 1 >= 0 && board.boardState[row][col - 1] == "1p" && board.boardState[row - 1][col - 1] == "1p") //en passant left
+        {
+            validMoves.push([row + 1, col - 1]);
+        }
     }
 }
 
@@ -325,4 +343,50 @@ function validQueenMove(piece, row, col)
 {
     validRookMove(piece, row, col);
     validBishopMove(piece, row, col);
+}
+
+function validKingMove(piece, row, col) //NOT DONE YET -- CASTLING
+{
+    //CHECK ALL 8 SURROUNDING SQUARES
+    if (row - 1 >= 0 && board.boardState[row - 1][col] != "" && String(board.boardState[row - 1][col])[0] != String(piece)[0]) //UP
+    {
+        validMoves.push([row - 1, col]);
+    }
+
+    if (row + 1 < 8 && board.boardState[row + 1][col] != "" && String(board.boardState[row + 1][col])[0] != String(piece)[0]) //DOWN
+    {
+        validMoves.push([row + 1, col]);
+    }
+
+    if (col - 1 >= 0 && board.boardState[row][col - 1] != "" && String(board.boardState[row][col - 1])[0] != String(piece)[0]) //LEFT
+    {
+        validMoves.push([row, col - 1]);
+    }
+
+    if (col + 1 < 8 && board.boardState[row][col + 1] != "" && String(board.boardState[row][col + 1])[0] != String(piece)[0]) //RIGHT
+    {
+        validMoves.push([row, col + 1]);
+    }
+
+    if (row - 1 >= 0 && col - 1 >= 0 && board.boardState[row - 1][col - 1] != "" && String(board.boardState[row - 1][col - 1])[0] != String(piece)[0]) //UP LEFT
+    {
+        validMoves.push([row - 1, col - 1]);
+    }
+
+    if (row - 1 >= 0 && col + 1 < 8 && board.boardState[row - 1][col + 1] != "" && String(board.boardState[row - 1][col + 1])[0] != String(piece)[0]) //UP RIGHT
+    {
+        validMoves.push([row - 1, col + 1]);
+    }
+
+    if (row + 1 < 8 && col - 1 >= 0 && board.boardState[row + 1][col - 1] != "" && String(board.boardState[row + 1][col - 1])[0] != String(piece)[0]) //DOWN LEFT
+    {
+        validMoves.push([row + 1, col - 1]);
+    }
+
+    if (row + 1 < 8 && col + 1 < 8 && board.boardState[row + 1][col + 1] != "" && String(board.boardState[row + 1][col + 1])[0] != String(piece)[0]) //DOWN RIGHT
+    {
+        validMoves.push([row + 1, col + 1]);
+    }
+
+    
 }
