@@ -4,12 +4,34 @@ import * as board from "./board.js";
 let validMoves = [];
 let enPassantTarget = null; // Track the pawn that just moved 2 squares forward
 
+// Track which pieces have moved (for castling rules)
+let pieceMoved = {
+    "1k": false, // White king
+    "1rH": false, // White rook kingside
+    "1rA": false, // White rook queenside
+    "0k": false, // Black king
+    "0rH": false, // Black rook kingside
+    "0rA": false  // Black rook queenside
+};
+
 export function setEnPassantTarget(target) {
     enPassantTarget = target;
 }
 
 export function getEnPassantTarget() {
     return enPassantTarget;
+}
+
+export function recordPieceMoved(piece, row, col) {
+    // Record if king moved
+    if (piece === "1k") pieceMoved["1k"] = true;
+    if (piece === "0k") pieceMoved["0k"] = true;
+    
+    // Record if rook moved (kingside or queenside)
+    if (piece === "1r" && col === 7) pieceMoved["1rH"] = true; // White kingside rook
+    if (piece === "1r" && col === 0) pieceMoved["1rA"] = true; // White queenside rook
+    if (piece === "0r" && col === 7) pieceMoved["0rH"] = true; // Black kingside rook
+    if (piece === "0r" && col === 0) pieceMoved["0rA"] = true; // Black queenside rook
 }
 
 export function calcValidMoves(piece, row, col)
@@ -56,7 +78,7 @@ export function calcValidMoves(piece, row, col)
     return validMoves;
 }
 
-function validWhitePawnMove(piece, row, col) //NOT DONE YET -- PROMOTE
+function validWhitePawnMove(piece, row, col) //Promotion is handled in main.js after move
 {
     //MOVEMENT FORWARD
     if (board.boardState[row - 1][col] == "") //check if square in front is empty
@@ -108,7 +130,7 @@ function validWhitePawnMove(piece, row, col) //NOT DONE YET -- PROMOTE
     }
 }
 
-function validBlackPawnMove(piece, row, col) //NOT DONE YET -- PROMOTE
+function validBlackPawnMove(piece, row, col) //Promotion is handled in main.js after move
 {
     //MOVEMENT FORWARD
     if (board.boardState[row + 1][col] == "") //check if square in front is empty
@@ -366,48 +388,92 @@ function validQueenMove(piece, row, col)
     validBishopMove(piece, row, col);
 }
 
-function validKingMove(piece, row, col) //NOT DONE YET -- CASTLING
+function validKingMove(piece, row, col) //Castling is handled in main.js after move
 {
     //CHECK ALL 8 SURROUNDING SQUARES
-    if (row - 1 >= 0 && board.boardState[row - 1][col] != "" && String(board.boardState[row - 1][col])[0] != String(piece)[0]) //UP
+    
+    //UP
+    if (row - 1 >= 0 && (board.boardState[row - 1][col] == "" || String(board.boardState[row - 1][col])[0] != String(piece)[0]))
     {
         validMoves.push([row - 1, col]);
     }
 
-    if (row + 1 < 8 && board.boardState[row + 1][col] != "" && String(board.boardState[row + 1][col])[0] != String(piece)[0]) //DOWN
+    //DOWN
+    if (row + 1 < 8 && (board.boardState[row + 1][col] == "" || String(board.boardState[row + 1][col])[0] != String(piece)[0]))
     {
         validMoves.push([row + 1, col]);
     }
 
-    if (col - 1 >= 0 && board.boardState[row][col - 1] != "" && String(board.boardState[row][col - 1])[0] != String(piece)[0]) //LEFT
+    //LEFT
+    if (col - 1 >= 0 && (board.boardState[row][col - 1] == "" || String(board.boardState[row][col - 1])[0] != String(piece)[0]))
     {
         validMoves.push([row, col - 1]);
     }
 
-    if (col + 1 < 8 && board.boardState[row][col + 1] != "" && String(board.boardState[row][col + 1])[0] != String(piece)[0]) //RIGHT
+    //RIGHT
+    if (col + 1 < 8 && (board.boardState[row][col + 1] == "" || String(board.boardState[row][col + 1])[0] != String(piece)[0]))
     {
         validMoves.push([row, col + 1]);
     }
 
-    if (row - 1 >= 0 && col - 1 >= 0 && board.boardState[row - 1][col - 1] != "" && String(board.boardState[row - 1][col - 1])[0] != String(piece)[0]) //UP LEFT
+    //UP LEFT
+    if (row - 1 >= 0 && col - 1 >= 0 && (board.boardState[row - 1][col - 1] == "" || String(board.boardState[row - 1][col - 1])[0] != String(piece)[0]))
     {
         validMoves.push([row - 1, col - 1]);
     }
 
-    if (row - 1 >= 0 && col + 1 < 8 && board.boardState[row - 1][col + 1] != "" && String(board.boardState[row - 1][col + 1])[0] != String(piece)[0]) //UP RIGHT
+    //UP RIGHT
+    if (row - 1 >= 0 && col + 1 < 8 && (board.boardState[row - 1][col + 1] == "" || String(board.boardState[row - 1][col + 1])[0] != String(piece)[0]))
     {
         validMoves.push([row - 1, col + 1]);
     }
 
-    if (row + 1 < 8 && col - 1 >= 0 && board.boardState[row + 1][col - 1] != "" && String(board.boardState[row + 1][col - 1])[0] != String(piece)[0]) //DOWN LEFT
+    //DOWN LEFT
+    if (row + 1 < 8 && col - 1 >= 0 && (board.boardState[row + 1][col - 1] == "" || String(board.boardState[row + 1][col - 1])[0] != String(piece)[0]))
     {
         validMoves.push([row + 1, col - 1]);
     }
 
-    if (row + 1 < 8 && col + 1 < 8 && board.boardState[row + 1][col + 1] != "" && String(board.boardState[row + 1][col + 1])[0] != String(piece)[0]) //DOWN RIGHT
+    //DOWN RIGHT
+    if (row + 1 < 8 && col + 1 < 8 && (board.boardState[row + 1][col + 1] == "" || String(board.boardState[row + 1][col + 1])[0] != String(piece)[0]))
     {
         validMoves.push([row + 1, col + 1]);
     }
 
+    //CASTLING
+    //White kingside castling (0-0): King from e1(7,4) to g1(7,6)
+    if (piece === "1k" && row === 7 && col === 4 && !pieceMoved["1k"] && !pieceMoved["1rH"])
+    {
+        if (board.boardState[7][5] === "" && board.boardState[7][6] === "" && board.boardState[7][7] === "1r")
+        {
+            validMoves.push([7, 6]); // Castling kingside
+        }
+    }
     
+    //White queenside castling (0-0-0): King from e1(7,4) to c1(7,2)
+    if (piece === "1k" && row === 7 && col === 4 && !pieceMoved["1k"] && !pieceMoved["1rA"])
+    {
+        if (board.boardState[7][3] === "" && board.boardState[7][2] === "" && board.boardState[7][1] === "" && board.boardState[7][0] === "1r")
+        {
+            validMoves.push([7, 2]); // Castling queenside
+        }
+    }
+    
+    //Black kingside castling: King from e8(0,4) to g8(0,6)
+    if (piece === "0k" && row === 0 && col === 4 && !pieceMoved["0k"] && !pieceMoved["0rH"])
+    {
+        if (board.boardState[0][5] === "" && board.boardState[0][6] === "" && board.boardState[0][7] === "0r")
+        {
+            validMoves.push([0, 6]); // Castling kingside
+        }
+    }
+    
+    //Black queenside castling: King from e8(0,4) to c8(0,2)
+    if (piece === "0k" && row === 0 && col === 4 && !pieceMoved["0k"] && !pieceMoved["0rA"])
+    {
+        if (board.boardState[0][3] === "" && board.boardState[0][2] === "" && board.boardState[0][1] === "" && board.boardState[0][0] === "0r")
+        {
+            validMoves.push([0, 2]); // Castling queenside
+        }
+    }
 }

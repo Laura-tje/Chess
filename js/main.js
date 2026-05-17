@@ -47,6 +47,9 @@ export function onClick(square)
                 const isDoublePawnMove = selectedPiece.includes('p') && 
                                         Math.abs(selectedSquare[0] - square[0]) === 2;
                 
+                // Check if this is castling (king moves 2 squares)
+                const isCastling = selectedPiece.includes('k') && Math.abs(selectedSquare[1] - square[1]) === 2;
+                
                 // If en passant, also remove the pawn next to the en passant square
                 if (isEnPassant)
                 {
@@ -56,6 +59,24 @@ export function onClick(square)
                 // Move the piece
                 board.boardState[square[0]][square[1]] = selectedPiece;
                 board.boardState[selectedSquare[0]][selectedSquare[1]] = "";
+                
+                // Handle castling: move the rook
+                if (isCastling)
+                {
+                    if (square[1] === 6) // Kingside castling
+                    {
+                        board.boardState[square[0]][5] = board.boardState[square[0]][7];
+                        board.boardState[square[0]][7] = "";
+                    }
+                    else if (square[1] === 2) // Queenside castling
+                    {
+                        board.boardState[square[0]][3] = board.boardState[square[0]][0];
+                        board.boardState[square[0]][0] = "";
+                    }
+                }
+                
+                // Record that this piece has moved (for castling rules)
+                moves.recordPieceMoved(selectedPiece, selectedSquare[0], selectedSquare[1]);
                 
                 // Check for pawn promotion
                 const isPawnPromotion = selectedPiece.includes('p') && 
