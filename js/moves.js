@@ -2,6 +2,15 @@
 import * as board from "./board.js";
 
 let validMoves = [];
+let enPassantTarget = null; // Track the pawn that just moved 2 squares forward
+
+export function setEnPassantTarget(target) {
+    enPassantTarget = target;
+}
+
+export function getEnPassantTarget() {
+    return enPassantTarget;
+}
 
 export function calcValidMoves(piece, row, col)
 {
@@ -47,7 +56,7 @@ export function calcValidMoves(piece, row, col)
     return validMoves;
 }
 
-function validWhitePawnMove(piece, row, col) //NOT DONE YET -- EN PASSANT, PROMOTE
+function validWhitePawnMove(piece, row, col) //NOT DONE YET -- PROMOTE
 {
     //MOVEMENT FORWARD
     if (board.boardState[row - 1][col] == "") //check if square in front is empty
@@ -83,17 +92,23 @@ function validWhitePawnMove(piece, row, col) //NOT DONE YET -- EN PASSANT, PROMO
         validMoves.push([row - 1, col + 1]);
     }
 
-    //en passant
-    if (row == 3) //en passant can only happen on 4th rank
+    //en passant - white pawn can capture black pawn on its sides if the black pawn just moved 2 squares
+    if (row == 3) //white can en passant on 5th rank (row index 3)
     {
-        if (col - 1 >= 0 && board.boardState[row][col - 1] == "0p" && board.boardState[row + 1][col - 1] == "0p") //en passant left
+        //en passant left
+        if (col - 1 >= 0 && board.boardState[row][col - 1] == "0p" && getEnPassantTarget() && getEnPassantTarget()[0] == row && getEnPassantTarget()[1] == col - 1)
         {
             validMoves.push([row - 1, col - 1]);
-        }   
+        }
+        //en passant right
+        if (col + 1 < 8 && board.boardState[row][col + 1] == "0p" && getEnPassantTarget() && getEnPassantTarget()[0] == row && getEnPassantTarget()[1] == col + 1)
+        {
+            validMoves.push([row - 1, col + 1]);
+        }
     }
 }
 
-function validBlackPawnMove(piece, row, col) //NOT DONE YET -- EN PASSANT, PROMOTE
+function validBlackPawnMove(piece, row, col) //NOT DONE YET -- PROMOTE
 {
     //MOVEMENT FORWARD
     if (board.boardState[row + 1][col] == "") //check if square in front is empty
@@ -128,12 +143,18 @@ function validBlackPawnMove(piece, row, col) //NOT DONE YET -- EN PASSANT, PROMO
         validMoves.push([row + 1, col + 1]);
     }
 
-    //en passant
-    if (row == 4) //en passant can only happen on 5th rank
+    //en passant - black pawn can capture white pawn on its sides if the white pawn just moved 2 squares
+    if (row == 4) //black can en passant on 4th rank (row index 4)
     {
-        if (col - 1 >= 0 && board.boardState[row][col - 1] == "1p" && board.boardState[row - 1][col - 1] == "1p") //en passant left
+        //en passant left
+        if (col - 1 >= 0 && board.boardState[row][col - 1] == "1p" && getEnPassantTarget() && getEnPassantTarget()[0] == row && getEnPassantTarget()[1] == col - 1)
         {
             validMoves.push([row + 1, col - 1]);
+        }
+        //en passant right
+        if (col + 1 < 8 && board.boardState[row][col + 1] == "1p" && getEnPassantTarget() && getEnPassantTarget()[0] == row && getEnPassantTarget()[1] == col + 1)
+        {
+            validMoves.push([row + 1, col + 1]);
         }
     }
 }

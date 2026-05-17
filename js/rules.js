@@ -12,7 +12,7 @@ export function checkForCheck(turn)
         for (let col = 0; col < 8; col++)
         {
             //calculate all valid moves for CURRENT player's pieces
-            if (board.boardState[row][col][0] == String(turn))
+            if (board.boardState[row][col] && board.boardState[row][col][0] == String(turn))
             {
                 let validMoves = moves.calcValidMoves(board.boardState[row][col], row, col);
                 for (let move of validMoves)
