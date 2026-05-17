@@ -11,6 +11,71 @@ let validMoves = [];
 let turn = 1; //white starts
 let check = false;
 
+// Reset the game to initial state
+function resetGame()
+{
+    // Reset board state
+    board.resetBoard();
+    
+    // Reset game variables
+    selectedSquare = null;
+    selectedPiece = null;
+    validMoves = [];
+    turn = 1;
+    check = false;
+    
+    // Reset moves tracking (for castling and en passant)
+    moves.resetMoveTracking();
+    moves.setEnPassantTarget(null);
+    
+    // Update UI
+    board.updateBoard();
+    board.drawValidMoves([]);
+    board.highlightCheck(null);
+    document.getElementById('turn').textContent = 'Wit';
+    const statusDiv = document.getElementById('game-status');
+    statusDiv.textContent = 'Wit aan zet';
+    statusDiv.style.background = '#E8E8E8';
+    
+    console.log("Game reset!");
+}
+
+// Helper function: checks if a move is legal (doesn't leave king in check)
+function isLegalMove(piece, fromRow, fromCol, toRow, toCol)
+{
+    // Simulate the move
+    const originalPiece = board.boardState[toRow][toCol];
+    const isEnPassant = piece.includes('p') && 
+                       Math.abs(fromCol - toCol) === 1 && 
+                       originalPiece === "";
+    
+    // Make the move
+    board.boardState[toRow][toCol] = piece;
+    board.boardState[fromRow][fromCol] = "";
+    
+    // If en passant, also remove the captured pawn
+    let enPassantPiece = null;
+    if (isEnPassant)
+    {
+        enPassantPiece = board.boardState[fromRow][toCol];
+        board.boardState[fromRow][toCol] = "";
+    }
+    
+    // Check if our own king is in check after this move
+    const kingInCheck = rules.checkForCheck(turn);
+    
+    // Undo the move
+    board.boardState[fromRow][fromCol] = piece;
+    board.boardState[toRow][toCol] = originalPiece;
+    if (isEnPassant && enPassantPiece)
+    {
+        board.boardState[fromRow][toCol] = enPassantPiece;
+    }
+    
+    // Move is legal if king is NOT in check
+    return !kingInCheck;
+}
+
 export function onClick(square)
 {   
     console.log(`Clicked on square: ${square}, Current turn: ${turn}`);
@@ -21,21 +86,61 @@ export function onClick(square)
     // If clicking on your own piece, select it (or reselect if already have something selected)
     if (clickedPieceColor === String(turn))
     {
-        selectedSquare = square;
-        selectedPiece = clickedPiece;
+        // If clicking on the same piece again, deselect it
+        if (selectedSquare && selectedSquare[0] === square[0] && selectedSquare[1] === square[1])
+        {
+            selectedSquare = null;
+            selectedPiece = null;
+            validMoves = [];
+            board.drawValidMoves(validMoves);
+            board.updateBoard();
+        }
+        else
+        {
+            selectedSquare = square;
+            selectedPiece = clickedPiece;
 
-        //valid moves
-        validMoves = moves.calcValidMoves(selectedPiece, selectedSquare[0], selectedSquare[1]);
-        board.drawValidMoves(validMoves);
-        board.updateBoard();
+            //valid moves
+            let calculatedMoves = moves.calcValidMoves(selectedPiece, selectedSquare[0], selectedSquare[1]);
+            
+            // Filter moves: only show moves that don't leave king in check
+            validMoves = calculatedMoves.filter(move => 
+                isLegalMove(selectedPiece, selectedSquare[0], selectedSquare[1], move[0], move[1])
+            ).map(move => [
+                selectedSquare[0], selectedSquare[1],  // from position
+                move[0], move[1]                        // to position
+            ]);
+            
+            // Always add the selected piece's own position to allow deselection
+            validMoves.push([
+                selectedSquare[0], selectedSquare[1],  // from position
+                selectedSquare[0], selectedSquare[1]   // to position (same = deselection)
+            ]);
+            
+            board.drawValidMoves(validMoves);
+            board.updateBoard();
+        }
     } 
-    else if (selectedSquare != null && validMoves.length > 0)
+    else if (selectedSquare != null)
     {
         let moveFound = false;
         for (let move of validMoves)
         {
-            if (move[0] == square[0] && move[1] == square[1])
+            if (move[2] == square[0] && move[3] == square[1])
             {
+                // Check if this is a deselection (clicking on the same square)
+                if (move[0] == square[0] && move[1] == square[1])
+                {
+                    // Deselect the piece
+                    selectedSquare = null;
+                    selectedPiece = null;
+                    validMoves = [];
+                    board.drawValidMoves(validMoves);
+                    board.updateBoard();
+                    moveFound = true;
+                    break;
+                }
+                
                 console.log("Move is valid");
                 
                 // Check if this is an en passant capture
@@ -130,12 +235,41 @@ function completeTurn()
     board.updateBoard();
     document.getElementById('turn').textContent = turn === 1 ? 'Wit' : 'Zwart';
     
-    // Check for check AFTER the move and turn switch
-    check = rules.checkForCheck(1 - turn);
+    // Clear any previous status message
+    const statusDiv = document.getElementById('game-status');
+    statusDiv.textContent = '';
+    statusDiv.style.background = '';
+    
+    // Check for checkmate FIRST (since it includes check)
+    if (rules.checkForMate(turn))
+    {
+        const winner = turn === 1 ? 'Zwart' : 'Wit';
+        statusDiv.innerHTML = `🎉 SCHAAKMAT! ${winner} wint! <button id="replay-btn" style="margin-left: 10px; padding: 5px 10px; cursor: pointer;">Opnieuw spelen</button>`;
+        statusDiv.style.background = '#90EE90';
+        console.log(`Checkmate! ${winner} wins!`);
+        
+        // Add event listener to the replay button
+        document.getElementById('replay-btn').addEventListener('click', resetGame);
+        return;
+    }
+    
+    // Check for check (only if not checkmate)
+    check = rules.checkForCheck(turn);
+    
+    // Always clear previous check highlighting first
+    board.highlightCheck(null);
+    
     if (check)
     {
+        statusDiv.textContent = `⚠️ ${turn === 1 ? 'Wit' : 'Zwart'} staat in schaak!`;
+        statusDiv.style.background = '#FFB6C6';
         console.log("King is in check!");
-        board.highlightCheck(rules.findKing(1 - turn));
+        board.highlightCheck(rules.findKingByColor(turn));
+    }
+    else
+    {
+        statusDiv.textContent = `${turn === 1 ? 'Wit' : 'Zwart'} aan zet`;
+        statusDiv.style.background = '#E8E8E8';
     }
 }
 
@@ -212,6 +346,11 @@ function promotePawn(row, col, color)
 }
 
 board.createBoard();
+
+// Initialize game status display
+const statusDiv = document.getElementById('game-status');
+statusDiv.textContent = `Wit aan zet`;
+statusDiv.style.background = '#E8E8E8';
 
 
 

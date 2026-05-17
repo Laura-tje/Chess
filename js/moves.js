@@ -22,6 +22,18 @@ export function getEnPassantTarget() {
     return enPassantTarget;
 }
 
+export function resetMoveTracking() {
+    enPassantTarget = null;
+    pieceMoved = {
+        "1k": false, // White king
+        "1rH": false, // White rook kingside
+        "1rA": false, // White rook queenside
+        "0k": false, // Black king
+        "0rH": false, // Black rook kingside
+        "0rA": false  // Black rook queenside
+    };
+}
+
 export function recordPieceMoved(piece, row, col) {
     // Record if king moved
     if (piece === "1k") pieceMoved["1k"] = true;

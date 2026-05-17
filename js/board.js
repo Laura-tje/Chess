@@ -14,6 +14,30 @@ export let boardState =
 ["1r", "1n", "1b", "1q", "1k", "1b", "1n", "1r"]
 ];
 
+export function resetBoard()
+{
+    const initialState = 
+    [
+    ["0r", "0n", "0b", "0q", "0k", "0b", "0n", "0r"],
+    ["0p", "0p", "0p", "0p", "0p", "0p", "0p", "0p"],
+    ["", "", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", "", ""],
+    ["1p","1p", "1p", "1p", "1p", "1p", "1p", "1p"],
+    ["1r", "1n", "1b", "1q", "1k", "1b", "1n", "1r"]
+    ];
+    
+    // Clear and refill the boardState array
+    for (let row = 0; row < 8; row++)
+    {
+        for (let col = 0; col < 8; col++)
+        {
+            boardState[row][col] = initialState[row][col];
+        }
+    }
+}
+
 const pieceIcons = 
 {
 "1r": "♖", "1n": "♘", "1b": "♗", "1q": "♕", "1k": "♔", "1p": "♙",
@@ -62,7 +86,10 @@ export function drawValidMoves(validMoves) //FIX THIS, NOT MY OWN CODE
     
     // Voeg highlight toe aan valid moves
     validMoves.forEach(move => {
-        const cell = document.querySelector(`[data-row="${move[0]}"][data-col="${move[1]}"]`);
+        // Handle both old format [toRow, toCol] and new format [fromRow, fromCol, toRow, toCol]
+        const toRow = move.length === 4 ? move[2] : move[0];
+        const toCol = move.length === 4 ? move[3] : move[1];
+        const cell = document.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
         if (cell) {
             cell.classList.add("valid-move");
         }
