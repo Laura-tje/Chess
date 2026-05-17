@@ -253,7 +253,19 @@ function completeTurn()
         return;
     }
     
-    // Check for check (only if not checkmate)
+    // Check for stalemate (no legal moves but not in check)
+    if (rules.checkForStalemate(turn))
+    {
+        statusDiv.innerHTML = `🤝 STALEMATE! Gelijkspel! <button id="replay-btn" style="margin-left: 10px; padding: 5px 10px; cursor: pointer;">Opnieuw spelen</button>`;
+        statusDiv.style.background = '#FFC107';
+        console.log("Stalemate! Draw!");
+        
+        // Add event listener to the replay button
+        document.getElementById('replay-btn').addEventListener('click', resetGame);
+        return;
+    }
+    
+    // Check for check (only if not checkmate or stalemate)
     check = rules.checkForCheck(turn);
     
     // Always clear previous check highlighting first
