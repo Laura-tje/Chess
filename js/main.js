@@ -3,6 +3,7 @@
 import * as board from "./board.js";
 import * as moves from "./moves.js";
 import * as rules from "./rules.js";
+import { sendMove } from "./socket.js";
 
 
 let selectedSquare = null;
@@ -10,6 +11,9 @@ let selectedPiece = null;
 let validMoves = [];
 let turn = 1; //white starts
 let check = false;
+let isMultiplayer = false;
+let playerColor = null; // "white" (1) or "black" (0)
+let lastMove = null; // [fromRow, fromCol, toRow, toCol]
 
 // Reset the game to initial state
 function resetGame()
@@ -39,6 +43,77 @@ function resetGame()
     
     console.log("Game reset!");
 }
+
+// Wanneer tegenstander een zet doet
+export function handleOpponentMove(moveData)
+{
+    const [fromRow, fromCol, toRow, toCol] = moveData;
+    const piece = board.boardState[fromRow][fromCol];
+    
+    if (!piece) return;
+    
+    // Speel de zet uit
+    board.boardState[toRow][toCol] = piece;
+    board.boardState[fromRow][fromCol] = "";
+    
+    // Zet turn om
+    turn = rules.switchTurn(turn);
+    
+    // Update board
+    board.updateBoard();
+    document.getElementById('turn').textContent = turn === 1 ? 'Wit' : 'Zwart';
+    
+    // Check voor check/mate
+    const statusDiv = document.getElementById('game-status');
+    
+    if (rules.checkForMate(turn))
+    {
+        const winner = turn === 1 ? 'Zwart' : 'Wit';
+        statusDiv.textContent = `🎉 SCHAAKMAT! ${winner} wint!`;
+        statusDiv.style.background = '#90EE90';
+        return;
+    }
+    
+    if (rules.checkForStalemate(turn))
+    {
+        statusDiv.textContent = `🤝 STALEMATE! Gelijkspel!`;
+        statusDiv.style.background = '#FFC107';
+        return;
+    }
+    
+    check = rules.checkForCheck(turn);
+    board.highlightCheck(null);
+    
+    if (check)
+    {
+        statusDiv.textContent = `⚠️ ${turn === 1 ? 'Wit' : 'Zwart'} staat in schaak!`;
+        statusDiv.style.background = '#FFB6C6';
+        board.highlightCheck(rules.findKingByColor(turn));
+    }
+    else
+    {
+        statusDiv.textContent = `${turn === 1 ? 'Wit' : 'Zwart'} aan zet`;
+        statusDiv.style.background = '#E8E8E8';
+    }
+}
+
+// Maak het bereikbaar vanuit socket.js
+window.handleOpponentMove = handleOpponentMove;
+
+// Start multiplayer game
+window.startMultiplayerGame = function(color) {
+    isMultiplayer = true;
+    playerColor = color;
+    
+    // Set board flipped for black
+    if (color === 'black') {
+        board.setFlipped(true);
+    } else {
+        board.setFlipped(false);
+    }
+    
+    resetGame();
+};
 
 // Helper function: checks if a move is legal (doesn't leave king in check)
 function isLegalMove(piece, fromRow, fromCol, toRow, toCol)
@@ -78,6 +153,17 @@ function isLegalMove(piece, fromRow, fromCol, toRow, toCol)
 
 export function onClick(square)
 {   
+    // Multiplayer check: only allow if it's your turn and your color
+    if (isMultiplayer)
+    {
+        const currentPlayerColor = turn === 1 ? "white" : "black";
+        if (playerColor !== currentPlayerColor)
+        {
+            console.log("Not your turn! Your color:", playerColor, "Current turn:", currentPlayerColor);
+            return;
+        }
+    }
+    
     console.log(`Clicked on square: ${square}, Current turn: ${turn}`);
     
     const clickedPiece = board.boardState[square[0]][square[1]];
@@ -165,6 +251,9 @@ export function onClick(square)
                 board.boardState[square[0]][square[1]] = selectedPiece;
                 board.boardState[selectedSquare[0]][selectedSquare[1]] = "";
                 
+                // Track the move
+                lastMove = [selectedSquare[0], selectedSquare[1], square[0], square[1]];
+                
                 // Handle castling: move the rook
                 if (isCastling)
                 {
@@ -227,6 +316,12 @@ export function onClick(square)
 
 function completeTurn()
 {
+    // Send move to opponent if multiplayer
+    if (isMultiplayer && lastMove)
+    {
+        sendMove(lastMove);
+    }
+    
     // Switch turn
     turn = rules.switchTurn(turn);
     console.log(`Turn switched to: ${turn}`);

@@ -47,12 +47,25 @@ const pieceIcons =
 
 const board = document.getElementById("chessboard");
 const boardButtons = [];
+export let boardFlipped = false; // Voor zwart speler
+
+export function setFlipped(flipped) {
+    boardFlipped = flipped;
+    createBoard(); // Reteken bord met nieuwe volgorde
+}
 
 export function createBoard()
 {
-    for (let row = 0; row < 8; row++) 
+    // Clear bestaand bord
+    board.innerHTML = '';
+    
+    // Bepaal loop volgorde
+    const rows = boardFlipped ? [7, 6, 5, 4, 3, 2, 1, 0] : [0, 1, 2, 3, 4, 5, 6, 7];
+    const cols = boardFlipped ? [7, 6, 5, 4, 3, 2, 1, 0] : [0, 1, 2, 3, 4, 5, 6, 7];
+    
+    for (let row of rows) 
     {
-        for (let col = 0; col < 8; col++) 
+        for (let col of cols) 
         {
             const cell = document.createElement("div");
 
