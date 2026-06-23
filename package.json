@@ -2,7 +2,7 @@
   "name": "chess",
   "version": "1.0.0",
   "description": "https://laura-tje.github.io/Chess",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js"
