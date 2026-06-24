@@ -15,8 +15,8 @@ const io = new Server(server, {
 // Serve static files (je HTML, CSS, JS)
 app.use(express.static(path.join(__dirname)));
 
-// Server draait op poort 3000
-const PORT = 3000;
+// Server draait op poort 3000 of environment PORT
+const PORT = process.env.PORT || 3000;
 
 // Wanneer een client verbindt
 let gameRooms = {};

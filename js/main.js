@@ -36,7 +36,6 @@ function resetGame()
     board.updateBoard();
     board.drawValidMoves([]);
     board.highlightCheck(null);
-    document.getElementById('turn').textContent = 'Wit';
     const statusDiv = document.getElementById('game-status');
     statusDiv.textContent = 'Wit aan zet';
     statusDiv.style.background = '#E8E8E8';
@@ -61,7 +60,6 @@ export function handleOpponentMove(moveData)
     
     // Update board
     board.updateBoard();
-    document.getElementById('turn').textContent = turn === 1 ? 'Wit' : 'Zwart';
     
     // Check voor check/mate
     const statusDiv = document.getElementById('game-status');
@@ -328,7 +326,6 @@ function completeTurn()
     
     // Update board display
     board.updateBoard();
-    document.getElementById('turn').textContent = turn === 1 ? 'Wit' : 'Zwart';
     
     // Clear any previous status message
     const statusDiv = document.getElementById('game-status');
